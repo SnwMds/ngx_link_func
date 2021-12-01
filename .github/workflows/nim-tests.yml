@@ -1,0 +1,60 @@
+name: Nim tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [
+            ubuntu-latest
+        ]
+        nim-version: [
+            "stable",
+            "1.4.0",
+            "1.2.0",
+            "1.0.0"
+        ]
+
+    steps:
+    - uses: actions/checkout@main
+    - name: Set up Nim ${{ matrix.nim-version }}
+      uses: jiro4989/setup-nim-action@master
+      with:
+        nim-version: ${{ matrix.nim-version }}
+    - name: Run tests
+      run: |
+            export CWD=$(realpath .)
+            
+            export NGX_MODULE_SOURCE=/tmp/nginx-link-function
+            export NGX_SOURCE=/tmp/nginx
+            
+            git clone --single-branch \
+                --no-tags \
+                --depth=1 \
+                https://github.com/Taymindis/nginx-link-function \
+                ${NGX_MODULE_SOURCE}
+            
+            git clone --single-branch \
+                --no-tags \
+                --depth=1 \
+                https://github.com/nginx/nginx \
+                ${NGX_SOURCE}
+            
+            cd ${NGX_SOURCE}
+            
+            CFLAGS="-I${NGX_MODULE_SOURCE}/src" ./auto/configure --prefix="${INSTALL_PREFIX}" \
+                --add-module=${NGX_MODULE_SOURCE}
+            
+            make --jobs
+            
+            nim compile \
+                --app:lib \
+                --define:ngxSrc=${NGX_SOURCE} \
+                --define:mdlSrc=${NGX_MODULE_SOURCE} \
+                ${CWD}/examples/simple_hello.nim
