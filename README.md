@@ -8,7 +8,7 @@ Install using `nimble`:
 nimble install --accept 'git://github.com/SnwMds/ngx_link_func'
 ```
 
-_**Note**: ngx_link_func requires Nim 1.0.0 or higher._
+_**Note**: ngx_link_func requires Nim 1.4.0 or higher._
 
 #### Usage:
 
