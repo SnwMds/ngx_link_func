@@ -1,4 +1,4 @@
-import ../ngx_link_func
+import ../src/ngx_link_func
 
 func init_cycle(cyc: ptr cycle_t): void {.cdecl, exportc: "ngx_link_func_init_cycle", dynlib.} =
     cyc.log_info(
